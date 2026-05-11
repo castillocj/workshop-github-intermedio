@@ -158,6 +158,134 @@ El job <code>test</code> declara una dependencia con <code>needs</code> — ¿el
 
 ---
 
+## Ejercicio 1.5 — Crear un workflow reutilizable (15 min)
+
+Un **reusable workflow** es un workflow que otros workflows pueden invocar con `uses`, igual que una acción. Esto elimina duplicación cuando varios repositorios (o varios workflows del mismo repo) comparten la misma lógica.
+
+### Conceptos clave
+
+```yaml
+# El workflow reutilizable se define con workflow_call como trigger
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        description: 'Versión de .NET a usar'
+        required: true
+        type: string
+    secrets:
+      token:
+        required: false
+```
+
+```yaml
+# El workflow que lo consume lo invoca con uses apuntando al archivo
+jobs:
+  ci:
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      dotnet-version: '9.0.x'
+```
+
+### Ejercicio: extraer build + test a un workflow reutilizable
+
+1. Crea `.github/workflows/reusable-build.yml`:
+
+```yaml
+name: Reusable Build & Test
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        description: 'Versión de .NET'
+        required: true
+        type: string
+      configuration:
+        description: 'Configuración de build'
+        required: false
+        type: string
+        default: 'Release'
+    outputs:
+      test-result:
+        description: 'Resultado de los tests'
+        value: ${{ jobs.build-and-test.outputs.test-result }}
+
+jobs:
+  build-and-test:
+    name: Build & Test (.NET ${{ inputs.dotnet-version }})
+    runs-on: ubuntu-latest
+    outputs:
+      test-result: ${{ steps.test.outcome }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration ${{ inputs.configuration }} --no-restore
+
+      - name: Test
+        id: test
+        run: dotnet test --configuration ${{ inputs.configuration }} --no-restore
+```
+
+2. Crea `.github/workflows/ci-reusable.yml` que lo consuma:
+
+```yaml
+name: CI (Reusable)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dotnet9:
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      dotnet-version: '9.0.x'
+
+  dotnet8:
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      dotnet-version: '8.0.x'
+      configuration: 'Debug'
+
+  summary:
+    runs-on: ubuntu-latest
+    needs: [dotnet9, dotnet8]
+    if: always()
+    steps:
+      - name: Resumen
+        run: |
+          echo "## Resultados" >> $GITHUB_STEP_SUMMARY
+          echo "| Versión | Resultado |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|-----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| .NET 9 | ${{ needs.dotnet9.outputs.test-result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| .NET 8 | ${{ needs.dotnet8.outputs.test-result }} |" >> $GITHUB_STEP_SUMMARY
+```
+
+3. Haz push y dispara el workflow manualmente desde la pestaña **Actions > CI (Reusable) > Run workflow**.
+
+### Preguntas para reflexionar
+
+1. ¿Qué ventaja tiene un reusable workflow vs. copiar los mismos steps en varios workflows?
+2. ¿Cuál es la diferencia entre un reusable workflow y una composite action?
+3. ¿Puede un reusable workflow vivir en otro repositorio? ¿Qué necesitarías configurar?
+
+### Restricciones importantes
+
+- Un workflow que usa `workflow_call` **no puede tener otros triggers** en el mismo archivo.
+- Los reusable workflows solo pueden anidarse hasta **4 niveles** de profundidad.
+- El caller y el reusable workflow deben estar en la **misma organización** (o el repo del reusable debe ser público).
+
+---
+
 ## 🛠️ Troubleshooting del Módulo
 
 | Problema | Solución |
@@ -167,6 +295,8 @@ El job <code>test</code> declara una dependencia con <code>needs</code> — ¿el
 | El artefacto se sube vacío | Verifica la ruta en `path:` y que `dotnet test` genere los archivos esperados |
 | El Step Summary no se ve | Busca la pestaña "Summary" en el run de Actions, no en los logs del job |
 | `grep` no encuentra el archivo `.trx` | Verifica la ruta `coverage/**/*.trx` — puede variar según la versión de .NET |
+| El reusable workflow no se encuentra | Verifica que la ruta en `uses:` sea relativa al repo: `./.github/workflows/archivo.yml` |
+| El workflow reutilizable no se dispara | Confirma que el trigger sea `workflow_call` (no `workflow_dispatch`) |
 
 ---
 
@@ -177,5 +307,6 @@ Al terminar este módulo, deberías poder responder:
 1. ¿Qué diferencia hay entre `outputs` y `upload-artifact`?
 2. ¿Por qué el job `summary` usa `if: always()`?
 3. ¿Cuántos de los 4 errores del workflow roto encontraste antes de ver la solución?
+4. ¿Cuándo usarías un reusable workflow en lugar de copiar steps entre workflows?
 
-> 📝 **Para el instructor:** El Ejercicio 1.4 (workflow roto) es el de mayor impacto práctico. Si el tiempo es limitado, prioriza este sobre el 1.3.
+> 📝 **Para el instructor:** El Ejercicio 1.4 (workflow roto) es el de mayor impacto práctico. El 1.5 (reusable workflow) es ideal si el grupo avanza rápido. Si el tiempo es limitado, prioriza 1.4 sobre 1.3 y 1.5.

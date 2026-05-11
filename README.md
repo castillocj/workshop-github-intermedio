@@ -233,6 +233,7 @@ cat .github/workflows/ci.yml
 | Matrix strategy | Probar contra múltiples combinaciones | Ejercicio 2.1, 2.2 |
 | `fail-fast` y `exclude` | Control fino del matrix | Ejercicio 2.1 |
 | Diagnóstico de workflows | Encontrar errores sin ejecutar | Ejercicio 1.4 |
+| Reusable workflows | Eliminar duplicación entre workflows | Ejercicio 1.5 |
 
 ### Ejercicios
 
@@ -241,6 +242,7 @@ cat .github/workflows/ci.yml
 - 1.2: Correr el pipeline y revisar artefactos
 - 1.3: Agregar conteo de pruebas al Step Summary
 - 1.4: Diagnosticar el workflow roto (4 errores)
+- 1.5: Crear un workflow reutilizable
 
 📄 **[Ejercicio 02 — Matrix builds y artefactos](exercises/02-matrix-artefactos/README.md)**
 - 2.1: Analizar el matrix existente
