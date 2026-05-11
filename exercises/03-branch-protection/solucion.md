@@ -7,7 +7,7 @@ Settings configuradas para `main`:
 1. **Require a pull request before merging** ✅
    - Required approvals: 1
 2. **Require status checks to pass before merging** ✅
-   - Status checks: `format`, `build`, `test` (del workflow CI)
+   - Status checks: `Format check`, `Build`, `Test` (del workflow CI)
 3. **Require conversation resolution before merging** ✅
 4. **Do not allow bypassing the above settings** ✅ (opcional, según el equipo)
 

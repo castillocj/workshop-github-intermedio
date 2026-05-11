@@ -64,11 +64,12 @@ jobs:
 
 ## Ejercicio 1.2 — Correr el pipeline y revisar los artefactos (15 min)
 
-1. Clona el repositorio e instala dependencias:
+1. Clona tu repositorio (si no lo hiciste en la preparación):
 
 ```bash
-git clone https://github.com/TU_USUARIO/workshop-github-intermedio.git
-cd workshop-github-intermedio
+# Reemplaza TU_ORG y TU_USUARIO con tus valores
+git clone https://github.com/TU_ORG/workshop-github-intermedio-TU_USUARIO.git
+cd workshop-github-intermedio-TU_USUARIO
 dotnet restore
 dotnet build
 dotnet test

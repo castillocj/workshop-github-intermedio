@@ -114,12 +114,17 @@ code --version     # VS Code (recomendado)
 
 ## 🚀 Preparación del entorno
 
+> 💡 **Nombre único:** Cada participante usa su usuario de GitHub como sufijo para evitar conflictos.
+
 ```bash
-# 1. Hacer fork del repositorio (desde GitHub o con gh)
-gh repo fork armandoblanco/workshop-github-intermedio --clone
+# 1. Crear tu propio repositorio a partir del template
+#    Reemplaza TU_ORG con tu organización y TU_USUARIO con tu usuario de GitHub
+gh repo create TU_ORG/workshop-github-intermedio-TU_USUARIO \
+  --template armandoblanco/workshop-github-intermedio \
+  --private --clone
 
 # 2. Entrar al directorio
-cd workshop-github-intermedio
+cd workshop-github-intermedio-TU_USUARIO
 
 # 3. Verificar que todo compila y pasa
 dotnet restore
@@ -127,6 +132,13 @@ dotnet build
 dotnet test
 dotnet format --verify-no-changes
 ```
+
+> ⚠️ **Usuarios de GitHub Enterprise:** Si `--template` no está disponible, clona manualmente y sube a un repo nuevo en tu organización:
+> ```bash
+> git clone https://github.com/armandoblanco/workshop-github-intermedio.git workshop-github-intermedio-TU_USUARIO
+> cd workshop-github-intermedio-TU_USUARIO
+> gh repo create TU_ORG/workshop-github-intermedio-TU_USUARIO --private --source . --push
+> ```
 
 > ⚠️ Los **cuatro comandos** deben terminar sin errores. Si alguno falla, revisa la sección de [Troubleshooting](#-troubleshooting) al final.
 
@@ -362,7 +374,7 @@ No. El código C# es deliberadamente simple (operaciones matemáticas y formateo
 
 ### ¿Puedo usar este material para dar un workshop en mi empresa?
 
-Sí. El repositorio es público y el contenido está diseñado para ser reutilizable. Recomendamos hacer un fork, reemplazar `@TU_USUARIO` en CODEOWNERS con los usuarios reales, y adaptar los tiempos según tu audiencia.
+Sí. El repositorio es público y el contenido está diseñado para ser reutilizable. Recomendamos crear un repo a partir del template (o clonar y subir a tu org), reemplazar `@TU_USUARIO` en CODEOWNERS con los usuarios reales, y adaptar los tiempos según tu audiencia.
 
 ### ¿Por qué GitHub CLI y no solo la web?
 
@@ -389,7 +401,7 @@ No te preocupes. Los módulos son independientes:
 | El workflow no se dispara | Verifica el nombre de la rama: debe ser `feature/**` o `fix/**` |
 | No entiendo el YAML | Pide al instructor una explicación paso a paso del `ci.yml` |
 | Mi `gh` no está autenticado | Ejecuta `gh auth login` y sigue las instrucciones |
-| Resultados diferentes a mi compañero | Eso es normal — cada fork tiene su propio contexto de Actions |
+| Resultados diferentes a mi compañero | Eso es normal — cada repositorio tiene su propio contexto de Actions |
 
 > 🎓 **Para el instructor:** Se recomienda tener una rama `solucion` con los workflows modificados según los ejercicios. Esto permite que participantes que se queden atrás puedan ver las respuestas y seguir avanzando.
 
